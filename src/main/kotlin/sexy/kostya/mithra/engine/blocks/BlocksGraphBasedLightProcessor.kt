@@ -20,7 +20,9 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
         val lightEmission = new.lightEmission
         val nextLevel = max(0, lightEmission - 1)
         val queue = LinkedList<Entry>()
+        println("block: $location | $previous -> $new, lightEmission=$lightEmission, previousLevel=$previousLevel")
         if (previousLevel < lightEmission) {
+            println("##1")
             disconnectAll(location)
             location.setBlockLightLevel(lightEmission)
             @Suppress("DEPRECATION")
@@ -28,12 +30,16 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                 location.relative(dir)?.let { queue.add(Entry(location, it, nextLevel)) }
             }
         } else if (previousLevel == lightEmission) {
+            println("##2")
             disconnectAll(location)
             return null
         } else {
+            println("##3")
             if (connections.isNotEmpty()) {
+                println("##3.2")
                 check(!previous.opaque)
                 if (!new.opaque) {
+                    println("##3.2.2")
                     return null
                 }
                 disconnectAll(location)
