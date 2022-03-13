@@ -112,7 +112,7 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                         stack.add(Entry(to, from, lightEmission - 1))
                     }
                     cache[to] = lightEmission
-                    propagate(stack, fromDirection, to, lightEmission - 1)
+                    propagate(stack, fromDirection, to, max(0, lightEmission - 1))
                 } else {
                     println("#4.3")
                     check(!to.block.opaque)
