@@ -47,7 +47,7 @@ class ChunkSectionSubgraph {
             } else {
                 changeEdge(pos + 2, dir - 4, connected)
             }
-            else -> changeEdge(pos + 3, dir + 2, connected)
+            else -> changeEdge(pos + 2, dir + 2, connected)
         }
         if (changed) {
             if (!connected) {

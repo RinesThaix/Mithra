@@ -37,6 +37,7 @@ class LightModification {
                 synchronized(chunk) {
                     sky?.let {
                         populateLightUpdate(
+                            "sky",
                             minSectionIndex,
                             chunk,
                             it.modifications[chunkIndex]!!,
@@ -49,6 +50,7 @@ class LightModification {
                     }
                     blocks?.let {
                         populateLightUpdate(
+                            "blocks",
                             minSectionIndex,
                             chunk,
                             it.modifications[chunkIndex]!!,
@@ -67,6 +69,7 @@ class LightModification {
         }
 
         private fun populateLightUpdate(
+            debugTip: String,
             minSectionIndex: Int,
             chunk: Chunk,
             sections: IntSet,
@@ -87,6 +90,7 @@ class LightModification {
                     nonZeroes.set(trueSectionIndex)
                     lights.add(dataGetter(section))
                 }
+                println("(${chunk.x};$trueSectionIndex;${chunk.z}) -- ${entriesCountGetter(section)} $debugTip")
             }
         }
     }
