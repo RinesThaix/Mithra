@@ -1,5 +1,6 @@
 package sexy.kostya.mithra.engine.blocks
 
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import sexy.kostya.mithra.bridge.Block
 import sexy.kostya.mithra.bridge.Chunk
 import sexy.kostya.mithra.bridge.ChunkSection
@@ -19,7 +20,6 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
         val previousLevel = location.getBlockLightLevel()
         val lightEmission = new.lightEmission
         val nextLevel = max(0, lightEmission - 1)
-        val modification = LightModification()
         val stack = Stack<Entry>()
         if (previousLevel < lightEmission) {
             disconnectAll(location)
@@ -45,6 +45,7 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                 location.relative(dir)?.let { stack.add(Entry(location, it, nextLevel)) }
             }
         }
+        val modification = LightModification()
         processUpdates(modification, stack)
         if (previousLevel != location.getBlockLightLevel()) {
             modification.add(location)
@@ -56,8 +57,17 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
         modification: LightModification,
         stack: Stack<Entry>
     ) {
+        val cache = Object2IntOpenHashMap<BlockLocation>()
+        cache.defaultReturnValue(-1)
+        var iterations = 0
+        var validatedIterations = 0
         while (stack.isNotEmpty()) {
+            ++iterations
             val (from, to, level) = stack.pop()
+            if (cache.getInt(to) >= level) {
+                continue
+            }
+            ++validatedIterations
             val fromDirection = from.getDirection(to)
             disconnect(fromDirection, to)
             val connections = getConnections(to)
@@ -71,6 +81,7 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                 to.setBlockLightLevel(level)
                 modification.add(to)
                 connect(fromDirection, to)
+                cache[to] = level
                 propogate(stack, fromDirection, to, max(0, level - 1))
             } else if (previousLevel == level) {
                 if (level != 0 && level != to.block.lightEmission) {
@@ -92,6 +103,7 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                         stack.clear()
                         stack.add(Entry(to, from, lightEmission - 1))
                     }
+                    cache[to] = lightEmission
                     propogate(stack, fromDirection, to, lightEmission - 1)
                 } else {
                     check(!to.block.opaque)
@@ -100,10 +112,12 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                     if (level != 0) {
                         connect(fromDirection, to)
                     }
+                    cache[to] = level
                     propogate(stack, fromDirection, to, max(0, level - 1))
                 }
             }
         }
+        println("blocks $validatedIterations/$iterations")
     }
 
     private fun propogate(

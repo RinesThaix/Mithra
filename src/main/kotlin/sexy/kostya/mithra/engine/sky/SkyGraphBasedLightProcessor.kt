@@ -2,6 +2,7 @@ package sexy.kostya.mithra.engine.sky
 
 import it.unimi.dsi.fastutil.bytes.ByteArraySet
 import it.unimi.dsi.fastutil.bytes.ByteSets
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import sexy.kostya.mithra.bridge.Block
 import sexy.kostya.mithra.bridge.Chunk
 import sexy.kostya.mithra.bridge.ChunkSection
@@ -98,11 +99,17 @@ class SkyGraphBasedLightProcessor(
         modification: LightModification,
         stack: Stack<Entry>
     ) {
+        val cache = Object2IntOpenHashMap<BlockLocation>()
+        cache.defaultReturnValue(-1)
+        var iterations = 0
+        var validatedIterations = 0
         while (stack.isNotEmpty()) {
+            ++iterations
             val (from, to, level) = stack.pop()
-            if (to.block.opaque) {
+            if (to.block.opaque || cache.getInt(to) >= level) {
                 continue
             }
+            ++validatedIterations
             val fromDirection = from.getDirection(to)
             disconnect(fromDirection, to)
             val connections = getConnections(to)
@@ -113,6 +120,7 @@ class SkyGraphBasedLightProcessor(
                 to.setSkyLightLevel(level)
                 modification.add(to)
                 connect(fromDirection, to)
+                cache[to] = level
                 propogate(stack, fromDirection, to, level)
             } else if (previousLevel == level) {
                 if (level != 0) {
@@ -133,9 +141,11 @@ class SkyGraphBasedLightProcessor(
                 to.setSkyLightLevel(level)
                 modification.add(to)
                 connect(fromDirection, to)
+                cache[to] = level
                 propogate(stack, fromDirection, to, level)
             }
         }
+        println("sky $validatedIterations/$iterations")
     }
 
     private fun propogate(
