@@ -121,7 +121,7 @@ class SkyGraphBasedLightProcessor(
                 modification.add(to)
                 connect(fromDirection, to)
                 cache[to] = level
-                propogate(stack, fromDirection, to, level)
+                propagate(stack, fromDirection, to, level)
             } else if (previousLevel == level) {
                 if (level != 0) {
                     connect(fromDirection, to)
@@ -142,13 +142,13 @@ class SkyGraphBasedLightProcessor(
                 modification.add(to)
                 connect(fromDirection, to)
                 cache[to] = level
-                propogate(stack, fromDirection, to, level)
+                propagate(stack, fromDirection, to, level)
             }
         }
         println("sky $validatedIterations/$iterations")
     }
 
-    private fun propogate(
+    private fun propagate(
         stack: Stack<Entry>,
         fromDirection: Direction,
         to: BlockLocation,
