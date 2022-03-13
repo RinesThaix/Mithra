@@ -97,8 +97,8 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                     stack.add(Entry(to, from, previousLevel - 1))
                 }
             } else {
-                println("#4")
                 val lightEmission = to.block.lightEmission
+                println("#4, lightEmission=$lightEmission")
                 if (lightEmission >= level) {
                     println("#4.2")
                     if (lightEmission < previousLevel) {
