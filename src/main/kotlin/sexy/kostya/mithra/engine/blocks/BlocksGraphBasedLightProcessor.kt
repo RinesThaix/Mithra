@@ -88,7 +88,6 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                 println("$iterations. #3 blocks $from -> $to with $level (previously $previousLevel, connections=$connections, fromDir=$fromDirection)")
                 if (previousLevel > level + 2) {
                     println("#3.2")
-                    queue.clear()
                     queue.add(Entry(to, from, previousLevel - 1))
                 }
             } else {
@@ -103,7 +102,6 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                     }
                     if (lightEmission > level + 2) {
                         println("#4.2.3")
-                        queue.clear()
                         queue.add(Entry(to, from, lightEmission - 1))
                     }
                     cache[to] = lightEmission
