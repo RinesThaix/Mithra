@@ -19,13 +19,13 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
         val previousLevel = location.getBlockLightLevel()
         val lightEmission = new.lightEmission
         val nextLevel = max(0, lightEmission - 1)
-        val stack = Stack<Entry>()
+        val queue = LinkedList<Entry>()
         if (previousLevel < lightEmission) {
             disconnectAll(location)
             location.setBlockLightLevel(lightEmission)
             @Suppress("DEPRECATION")
             for (dir in Directions.All) {
-                location.relative(dir)?.let { stack.add(Entry(location, it, nextLevel)) }
+                location.relative(dir)?.let { queue.add(Entry(location, it, nextLevel)) }
             }
         } else if (previousLevel == lightEmission) {
             disconnectAll(location)
@@ -41,11 +41,11 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
             location.setBlockLightLevel(lightEmission)
             @Suppress("ConvertArgumentToSet")
             for (dir in Directions.All - connections) {
-                location.relative(dir)?.let { stack.add(Entry(location, it, nextLevel)) }
+                location.relative(dir)?.let { queue.add(Entry(location, it, nextLevel)) }
             }
         }
         val modification = LightModification()
-        processUpdates(modification, stack)
+        processUpdates(modification, queue)
         if (previousLevel != location.getBlockLightLevel()) {
             modification.add(location)
         }
@@ -54,15 +54,15 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
 
     private fun processUpdates(
         modification: LightModification,
-        stack: Stack<Entry>
+        queue: Queue<Entry>
     ) {
         val cache = Object2IntOpenHashMap<BlockLocation>()
         cache.defaultReturnValue(-1)
         var iterations = 0
         var validatedIterations = 0
-        while (stack.isNotEmpty()) {
+        while (queue.isNotEmpty()) {
             ++iterations
-            val (from, to, level) = stack.pop()
+            val (from, to, level) = queue.poll()
             if (cache.getInt(to) >= level) {
                 continue
             }
@@ -83,7 +83,7 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                 modification.add(to)
                 connect(fromDirection, to)
                 cache[to] = level
-                propagate(stack, fromDirection, to, max(0, level - 1))
+                propagate(queue, fromDirection, to, max(0, level - 1))
             } else if (previousLevel == level) {
                 println("#2")
                 if (level != 0 && level != to.block.lightEmission) {
@@ -93,8 +93,8 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                 println("#3")
                 if (previousLevel > level + 2) {
                     println("#3.2")
-                    stack.clear()
-                    stack.add(Entry(to, from, previousLevel - 1))
+                    queue.clear()
+                    queue.add(Entry(to, from, previousLevel - 1))
                 }
             } else {
                 val lightEmission = to.block.lightEmission
@@ -108,11 +108,11 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                     }
                     if (lightEmission > level + 2) {
                         println("#4.2.3")
-                        stack.clear()
-                        stack.add(Entry(to, from, lightEmission - 1))
+                        queue.clear()
+                        queue.add(Entry(to, from, lightEmission - 1))
                     }
                     cache[to] = lightEmission
-                    propagate(stack, fromDirection, to, max(0, lightEmission - 1))
+                    propagate(queue, fromDirection, to, max(0, lightEmission - 1))
                 } else {
                     println("#4.3")
                     check(!to.block.opaque)
@@ -122,7 +122,7 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                         connect(fromDirection, to)
                     }
                     cache[to] = level
-                    propagate(stack, fromDirection, to, max(0, level - 1))
+                    propagate(queue, fromDirection, to, max(0, level - 1))
                 }
             }
         }
@@ -130,7 +130,7 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
     }
 
     private fun propagate(
-        stack: Stack<Entry>,
+        queue: Queue<Entry>,
         fromDirection: Direction,
         to: BlockLocation,
         nextLevel: Int
@@ -138,7 +138,7 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
         @Suppress("DEPRECATION")
         for (dir in Directions.All) {
             if (dir != fromDirection) {
-                to.relative(dir)?.let { stack.add(Entry(to, it, nextLevel)) }
+                to.relative(dir)?.let { queue.add(Entry(to, it, nextLevel)) }
             }
         }
     }

@@ -50,14 +50,10 @@ data class BlockLocation(
         val cz = z.toChunkCoordinate()
         var chunk = chunk
         if (cx != chunk.x || cz != chunk.z) {
-            if (chunk.world.getChunk(cx, cz) == null) {
-                println("chunk is null: $x $y $z $cx $cz")
-            }
             chunk = chunk.world.getChunk(cx, cz) ?: return null
         }
         val sectionIndex = y.toChunkCoordinate()
         if (sectionIndex !in chunk.minSection until chunk.maxSection) {
-            println("sectionIndex is not within bounds: $y $sectionIndex ${chunk.minSection} ${chunk.maxSection}")
             return null
         }
         return BlockLocation(chunk, sectionIndex, x, y, z)
