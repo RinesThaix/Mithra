@@ -26,6 +26,7 @@ class ChunkSectionSubgraph {
     fun set(fromDirection: Direction, x: Int, y: Int, z: Int, connected: Boolean) =
         set(index(x, y, z), fromDirection, connected)
 
+    @Synchronized
     private fun set(index: Int, direction: Direction, connected: Boolean): Boolean {
         if (graph.isEmpty()) {
             if (!connected) {
@@ -79,6 +80,7 @@ class ChunkSectionSubgraph {
 
     fun disconnectAll(location: BlockLocation) = disconnectAll(index(location.x, location.y, location.z))
 
+    @Synchronized
     private fun disconnectAll(index: Int): Boolean {
         if (graph.isEmpty()) {
             return false
@@ -124,6 +126,7 @@ class ChunkSectionSubgraph {
         return count
     }
 
+    @Synchronized
     fun get(location: BlockLocation): List<Direction> {
         if (graph.isEmpty()) {
             return emptyList()

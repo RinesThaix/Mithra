@@ -73,6 +73,7 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
             val connections = getConnections(to)
             checkNotNull(connections)
             val previousLevel = to.getBlockLightLevel()
+            println("blocks $from -> $to with $level (previously $previousLevel)")
             if (previousLevel < level) {
                 if (to.block.opaque) {
                     continue
@@ -117,7 +118,7 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                 }
             }
         }
-        println("blocks $validatedIterations/$iterations")
+        println("blocks $validatedIterations/$iterations (${cache.size})")
     }
 
     private fun propogate(
