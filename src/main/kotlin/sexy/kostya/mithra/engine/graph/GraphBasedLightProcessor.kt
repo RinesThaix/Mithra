@@ -10,11 +10,15 @@ abstract class GraphBasedLightProcessor : LightProcessor {
     private val chunkSubgraphs = ConcurrentHashMap<Long, ChunkSubgraph>()
 
     final override fun handleChunkLoad(chunk: Chunk) {
+        val id = chunk.id
+        if (chunkSubgraphs.contains(id)) {
+            return
+        }
         val subgraph = ChunkSubgraph(chunk)
         synchronized(chunk) {
             populateChunkSubgraph(chunk, subgraph)
         }
-        chunkSubgraphs[chunk.id] = subgraph
+        chunkSubgraphs[id] = subgraph
     }
 
     final override fun handleChunkUnload(chunk: Chunk) {

@@ -18,13 +18,13 @@ class LightEngine(
     /**
      * Must be called whenever block is being updated.
      *
-     * @param expectedChunk - mostly a tip for the engine to reduce amount of chunk retrievals.
-     *                        Even if specified, engine will validate whether given block coords are within that chunk.
-     * @param x             - block x coordinate.
-     * @param y             - block y coordinate.
-     * @param z             - block z coordinate.
-     * @param previous      - block previous state.
-     * @param new           - block new stats.
+     * @param expectedChunk mostly a tip for the engine to reduce amount of chunk retrievals. Even if specified,
+     * engine will validate whether given block coords are within that chunk.
+     * @param x             block x coordinate.
+     * @param y             block y coordinate.
+     * @param z             block z coordinate.
+     * @param previous      block previous state.
+     * @param new           block new stats.
      * @return list of light updates for every affected chunk. May be empty.
      */
     fun blockChanged(expectedChunk: Chunk? = null, x: Int, y: Int, z: Int, previous: Block, new: Block): List<ChunkLightUpdate> {
