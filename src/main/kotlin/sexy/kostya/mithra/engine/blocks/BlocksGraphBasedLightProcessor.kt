@@ -69,12 +69,11 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
             val connections = getConnections(to)
             checkNotNull(connections)
             val previousLevel = to.getBlockLightLevel()
-            println("blocks $from -> $to with $level (previously $previousLevel, connections=$connections, fromDir=$fromDirection)")
             if (previousLevel < level) {
                 if (to.block.opaque) {
                     continue
                 }
-                println("#1")
+                println("$iterations. #1 blocks $from -> $to with $level (previously $previousLevel, connections=$connections, fromDir=$fromDirection)")
                 disconnectAll(to)
                 to.setBlockLightLevel(level)
                 modification.add(to)
@@ -82,12 +81,11 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                 cache[to] = level
                 propagate(queue, fromDirection, to, max(0, level - 1))
             } else if (previousLevel == level) {
-                println("#2")
                 if (level != 0 && level != to.block.lightEmission) {
                     connect(fromDirection, to)
                 }
             } else if (connections.isNotEmpty()) {
-                println("#3")
+                println("$iterations. #3 blocks $from -> $to with $level (previously $previousLevel, connections=$connections, fromDir=$fromDirection)")
                 if (previousLevel > level + 2) {
                     println("#3.2")
                     queue.clear()
@@ -95,7 +93,7 @@ class BlocksGraphBasedLightProcessor : GraphBasedLightProcessor() {
                 }
             } else {
                 val lightEmission = to.block.lightEmission
-                println("#4, lightEmission=$lightEmission")
+                println("$iterations. #4 blocks $from -> $to with $level (previously $previousLevel, connections=$connections, fromDir=$fromDirection), lightEmission=$lightEmission")
                 if (lightEmission >= level) {
                     println("#4.2")
                     if (lightEmission < previousLevel) {
