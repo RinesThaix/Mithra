@@ -39,4 +39,14 @@ class LightEngine(
         )
     }
 
+    fun chunkLoaded(chunk: Chunk) {
+        skyProcessor?.handleChunkLoad(chunk)
+        blocksProcessor?.handleChunkLoad(chunk)
+    }
+
+    fun chunkUnloaded(chunk: Chunk) {
+        skyProcessor?.handleChunkUnload(chunk)
+        blocksProcessor?.handleChunkUnload(chunk)
+    }
+
 }
